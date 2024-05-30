@@ -1,0 +1,181 @@
+#:import MDActionBottomAppBarButton kivymd.uix.appbar.MDActionBottomAppBarButton
+
+MDScreenManager:
+    HomeScreen:
+    UploadScreen:
+    TBDetectedScreen:
+    TBNotDetectedScreen:
+
+<HomeScreen>:
+    md_bg_color: app.theme_cls.backgroundColor
+
+    name: "Home"
+    id: home_page
+
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDTopAppBar:
+            type: "small"
+
+            MDIconButton:
+                icon: "menu"
+                pos_hint: {"center_y": .5}
+
+            MDTopAppBarTitle:
+                text: "TB Indicator"
+                pos_hint: {"center_x": .5}
+
+            MDIconButton:
+                icon: "menu"
+                pos_hint: {"center_x": .1, "center_y": .5}
+
+
+
+################################# End of TopAppBar ################################
+
+        MDScrollView:
+            do_scroll_x: False
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    adaptive_height: True
+
+                MDCard:
+                    padding: "10dp"
+
+                    MDGridLayout:
+                        rows: 2
+                        columns: 1
+
+                        MDCard:
+                            id: single_image_upload
+                            padding: "4dp"
+                            style: "elevated"
+                            pos_hint: {"center_x": .5, "center_y": .5}
+
+                            # Sets custom properties.
+                            theme_shadow_color: "Custom"
+                            shadow_color: "grey"
+                            theme_bg_color: "Custom"
+                            #md_bg_color: "Custom"
+                            md_bg_color_disabled: "grey"
+                            theme_shadow_offset: "Custom"
+                            shadow_offset: (1, -2)
+                            theme_shadow_softness: "Custom"
+                            shadow_softness: 1
+                            theme_elevation_level: "Custom"
+                            elevation_level: 2
+
+                            MDBoxLayout:
+                                orientation: 'vertical'
+
+                                MDLabel:
+                                    id: upload_single_image_text
+                                    text: 'Upload an\nX-ray Image'
+                                    halign: "center"
+
+                                MDIconButton:
+                                    id: single_image_icon
+                                    icon: "upload-box"
+                                    #style: "tonal"
+                                    theme_font_size: "Custom"
+                                    font_size: "48sp"
+                                    radius: [self.height / 2, ]
+                                    size_hint: None, None
+                                    size: "84dp", "84dp"
+                                    pos_hint: {"center_x":.5}
+
+
+                        MDCard:
+                            id: multiple_image_upload
+                            padding: "4dp"
+                            style: "elevated"
+                            pos_hint: {"center_x": .5, "center_y": .5}
+
+                            # Sets custom properties.
+                            theme_shadow_color: "Custom"
+                            shadow_color: "grey"
+                            theme_bg_color: "Custom"
+                            #md_bg_color: "black"
+                            md_bg_color_disabled: "grey"
+                            theme_shadow_offset: "Custom"
+                            shadow_offset: (1, -2)
+                            theme_shadow_softness: "Custom"
+                            shadow_softness: 1
+                            theme_elevation_level: "Custom"
+                            elevation_level: 2
+
+                            MDBoxLayout:
+                                orientation: 'vertical'
+
+                                MDLabel:
+                                    id: upload_multiple_image_text
+                                    text: 'Upload multiple\nX-ray Images'
+                                    halign: "center"
+
+                                MDIconButton:
+                                    id: multiple_image_icon
+                                    icon: "upload-multiple"
+                                    #style: "tonal"
+                                    theme_font_size: "Custom"
+                                    font_size: "48sp"
+                                    radius: [self.height / 2, ]
+                                    size_hint: None, None
+                                    size: "84dp", "84dp"
+                                    pos_hint: {"center_x":.5}
+
+
+
+
+
+
+############################ Beginning of BottomAppBar################################
+
+        MDBottomAppBar:
+
+            # buttons on the bottom of the screen
+            action_items:
+                [
+                MDActionBottomAppBarButton(icon="image-area", pos_hint={'center_x': 0.1}, icon_color="#e6e6e6"),
+                MDActionBottomAppBarButton(icon="magnify", pos_hint={'center_x': 0.3}),
+                MDActionBottomAppBarButton(icon="alert", pos_hint={'center_x': 0.7}),
+                MDActionBottomAppBarButton(icon="eye-circle", pos_hint={'center_x': 0.9}),
+                ]
+            MDFabBottomAppBarButton:
+                icon: "plus"
+                pos_hint: {'center_x': 0.5}
+                theme_bg_color: "Custom"
+                md_bg_color: "#167afa"
+                theme_icon_color: "Custom"
+                icon_color: "#ffffff"
+
+
+
+<UploadScreen>:
+    name: "Upload"
+    MDBoxLayout:
+        MDButton:
+            text: "Upload Image"
+            pos_hint: {'center_x':0.5, 'center_y':0.5}
+
+        MDButton:
+            text: "Go Home"
+            pos_hint: {'center_x':0.5, 'center_y':0.6}
+            on_press: root.manager.current = "Home"
+
+<TBDetectedScreen>:
+    name: "Detected"
+    MDBoxLayout:
+        MDButton:
+            text: "Tuberculosis detected"
+            pos_hint: {'center_x':0.5, 'center_y':0.5}
+
+<TBNotDetectedScreen>:
+    name: "NotDetected"
+    MDBoxLayout:
+        MDButton:
+            text: "Tuberculosis not detected"
+            pos_hint: {'center_x':0.5, 'center_y':0.5}
