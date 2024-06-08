@@ -1,14 +1,18 @@
 #:import MDActionBottomAppBarButton kivymd.uix.appbar.MDActionBottomAppBarButton
+#: import Label kivy.uix.label.Label
 
 MDScreenManager:
+    ProgressBarScreen:
     HomeScreen:
     UploadScreen:
+    MultipleImagesScreen:
     TBDetectedScreen:
     TBNotDetectedScreen:
 
+
+
 <HomeScreen>:
     md_bg_color: app.theme_cls.backgroundColor
-
     name: "Home"
     id: home_page
 
@@ -18,17 +22,19 @@ MDScreenManager:
         MDTopAppBar:
             type: "small"
 
-            MDIconButton:
-                icon: "menu"
-                pos_hint: {"center_y": .5}
-
             MDTopAppBarTitle:
                 text: "TB Indicator"
                 pos_hint: {"center_x": .5}
 
             MDIconButton:
-                icon: "menu"
-                pos_hint: {"center_x": .1, "center_y": .5}
+                id: switch_button_icon
+                icon: 'toggle-switch-off-outline'
+                pos_hint: {"center_y": .5}
+                size: (40, 40)
+                on_release:
+                    app.switch_mode()
+                    root.change_toggle_button()
+
 
 
 
@@ -56,11 +62,8 @@ MDScreenManager:
                             style: "elevated"
                             pos_hint: {"center_x": .5, "center_y": .5}
 
-                            # Sets custom properties.
                             theme_shadow_color: "Custom"
                             shadow_color: "grey"
-                            theme_bg_color: "Custom"
-                            #md_bg_color: "Custom"
                             md_bg_color_disabled: "grey"
                             theme_shadow_offset: "Custom"
                             shadow_offset: (1, -2)
@@ -69,6 +72,7 @@ MDScreenManager:
                             theme_elevation_level: "Custom"
                             elevation_level: 2
 
+
                             MDBoxLayout:
                                 orientation: 'vertical'
 
@@ -76,6 +80,7 @@ MDScreenManager:
                                     id: upload_single_image_text
                                     text: 'Upload an\nX-ray Image'
                                     halign: "center"
+                                    font_type: "quicksand"
 
                                 MDIconButton:
                                     id: single_image_icon
@@ -88,6 +93,11 @@ MDScreenManager:
                                     size: "84dp", "84dp"
                                     pos_hint: {"center_x":.5}
 
+                                    on_press: root.file_chooser()
+                                    on_release:
+                                        root.manager.current = "Upload"
+                                        root.manager.transition.direction = "left"
+
 
                         MDCard:
                             id: multiple_image_upload
@@ -95,11 +105,8 @@ MDScreenManager:
                             style: "elevated"
                             pos_hint: {"center_x": .5, "center_y": .5}
 
-                            # Sets custom properties.
                             theme_shadow_color: "Custom"
                             shadow_color: "grey"
-                            theme_bg_color: "Custom"
-                            #md_bg_color: "black"
                             md_bg_color_disabled: "grey"
                             theme_shadow_offset: "Custom"
                             shadow_offset: (1, -2)
@@ -115,6 +122,7 @@ MDScreenManager:
                                     id: upload_multiple_image_text
                                     text: 'Upload multiple\nX-ray Images'
                                     halign: "center"
+                                    font_type: "quicksand"
 
                                 MDIconButton:
                                     id: multiple_image_icon
@@ -126,6 +134,12 @@ MDScreenManager:
                                     size_hint: None, None
                                     size: "84dp", "84dp"
                                     pos_hint: {"center_x":.5}
+                                    font_type: "quicksand"
+                                    on_press:
+                                        root.on_button_press()
+                                        root.manager.current = "Multiple"
+                                        root.manager.transition.direction = "left"
+
 
 
 
@@ -140,42 +154,623 @@ MDScreenManager:
             action_items:
                 [
                 MDActionBottomAppBarButton(icon="image-area", pos_hint={'center_x': 0.1}, icon_color="#e6e6e6"),
-                MDActionBottomAppBarButton(icon="magnify", pos_hint={'center_x': 0.3}),
-                MDActionBottomAppBarButton(icon="alert", pos_hint={'center_x': 0.7}),
-                MDActionBottomAppBarButton(icon="eye-circle", pos_hint={'center_x': 0.9}),
+                MDActionBottomAppBarButton(icon="alert", pos_hint={'center_x': 0.9}),
                 ]
             MDFabBottomAppBarButton:
-                icon: "plus"
+                icon: "reload"
                 pos_hint: {'center_x': 0.5}
                 theme_bg_color: "Custom"
                 md_bg_color: "#167afa"
                 theme_icon_color: "Custom"
                 icon_color: "#ffffff"
+                on_press:
+                    root.manager.current = "Progress"
+                    root.manager.transition.direction = "up"
 
-
+################################# END OF HOMESCREEN #############################
 
 <UploadScreen>:
+    theme_bg_color: "Custom"
+    md_bg_color: app.theme_cls.backgroundColor
     name: "Upload"
-    MDBoxLayout:
-        MDButton:
-            text: "Upload Image"
-            pos_hint: {'center_x':0.5, 'center_y':0.5}
 
-        MDButton:
-            text: "Go Home"
-            pos_hint: {'center_x':0.5, 'center_y':0.6}
-            on_press: root.manager.current = "Home"
+    on_enter: root.change_image()
+    MDBoxLayout:
+        orientation: "vertical"
+        md_bg_color: app.theme_cls.backgroundColor
+
+        MDFloatLayout:
+            MDButton:
+                id: go_back_home
+                style: "text"
+                pos_hint: {"center_x": .1, "center_y": .9}
+
+                on_press:
+                    root.manager.current = "Home"
+                    root.manager.transition.direction = "right"
+
+                MDButtonIcon:
+                    id: back_home_icon
+                    icon: "arrow-left"
+                MDButtonText:
+                    id: back_home_icon_text
+                    text: "back"
+
+            MDIcon:
+                icon: "camera-iris"
+                pos_hint: {"center_x":.9, "center_y":.9}
+
+            MDLabel:
+                id: verify_watermark
+                text: "Verify"
+                theme_color: "Custom"
+                pos_hint: {"center_x":.57, "center_y":.8}
+                font_style: "Display"
+                role: "small"
+                font_type: "quicksand"
+                font_size: sp(100)
+
+            MDTextField:
+                id: patient_name
+                theme_color: "Custom"
+                mode: "filled"
+                size_hint_x: .9
+                #width: "240dp"
+                pos_hint: {"center_x":.51,"center_y": .7}
+
+                MDTextFieldLeadingIcon:
+                    icon: "account"
+
+                MDTextFieldHintText:
+                    text: "Enter patient's name"
+
+                MDTextFieldTrailingIcon:
+                    icon: "information"
+
+
+            MDTextField:
+                id: patient_description
+                theme_color: "Custom"
+                multiline: True
+                mode: "filled"
+                size_hint_x: .9
+                #width: "240dp"
+                pos_hint: {"center_x":.51,"center_y": .6}
+
+                MDTextFieldLeadingIcon:
+                    icon: ""
+
+                MDTextFieldHintText:
+                    text: "Enter patient's description"
+
+                MDTextFieldHelperText:
+                    text: "e.g age, height e.t.c"
+
+                MDTextFieldTrailingIcon:
+                    icon: "note-text"
+
+            MDBoxLayout:
+                theme_color: "Custom"
+                orientation: "vertical"
+                pos_hint: {'center_y': .35}
+                size_hint_y: .65
+
+                MDCard:
+                    id: image_shower
+                    style: "elevated"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    padding: "9dp"
+                    size_hint: None, None
+                    size: "300dp", "250dp"
+                    # Sets custom properties.
+                    theme_shadow_color: "Custom"
+                    shadow_color: "cyan"
+                    theme_color: "Custom"
+                    md_bg_color_disabled: "grey"
+                    theme_shadow_offset: "Custom"
+                    shadow_offset: (1, -2)
+                    theme_shadow_softness: "Custom"
+                    shadow_softness: 1
+                    theme_elevation_level: "Custom"
+                    elevation_level: 2
+
+                    FitImage:
+                        id: display_image
+                        source: ""
+                        #size_hint_y: .8
+                        pos_hint: {"top": 1}
+                        radius: "36dp", "36dp", 0, 0
+
+
+                MDButton:
+                    id: verification_button
+                    style: "elevated"
+                    pos_hint: {"center_x": .5, "center_y": .2}
+                    theme_color: "Custom"
+                    on_press:
+                        root.verify_image()
+                    on_release:
+                        root.clear_fields()
+
+                    MDButtonIcon:
+                        theme_color: "Custom"
+                        icon: "plus"
+
+                    MDButtonText:
+                        theme_color: "Custom"
+                        text: "Verify"
+
+
+###################################### END OF UPLOAD SCREEN ###########################################
 
 <TBDetectedScreen>:
     name: "Detected"
+    id: TBDetected
+    md_bg_color: app.theme_cls.backgroundColor
+
+
     MDBoxLayout:
-        MDButton:
-            text: "Tuberculosis detected"
-            pos_hint: {'center_x':0.5, 'center_y':0.5}
+        orientation: "vertical"
+        size_hint_y: .95
+
+        MDCard:
+            id: unsafe_state
+            style: "elevated"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            padding: "20dp"
+            size_hint: .9, .7
+            # Sets custom properties.
+            theme_shadow_color: "Custom"
+            shadow_color: "#d9534f"
+            theme_color: "Custom"
+            md_bg_color_disabled: "grey"
+            theme_shadow_offset: "Custom"
+            shadow_offset: (1, -2)
+            theme_shadow_softness: "Custom"
+            shadow_softness: 1
+            theme_elevation_level: "Custom"
+            elevation_level: 4
+
+            MDFloatLayout:
+                size_hint: 1, 1
+
+                MDButton:
+                    id: save_unsafe_record
+                    pos_hint: {"center_x": .5, "center_y": .1}
+                    id: verification_button
+                    style: "outlined"
+                    theme_color: "Custom"
+                    on_press: root.save_patient_record()
+
+                    MDButtonIcon:
+                        theme_color: "Custom"
+                        icon: "plus"
+
+                    MDButtonText:
+                        theme_color: "Custom"
+                        text: "Save record"
+
+                MDIcon:
+                    id: verified_check
+                    icon: "ambulance"
+                    icon_color: "#ff3333"
+                    theme_font_size: "Custom"
+                    font_size: "100sp"
+                    radius: [self.height / 2, ]
+                    size_hint: None, None
+                    size: "84dp", "84dp"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+
+                MDLabel:
+                    id: successful_sign
+                    text: "Chest X-ray image diagnosed with tuberculosis"
+                    theme_color: "Custom"
+                    text_color: (0, 0, 0, 1)
+                    pos_hint: {"center_x":.5, "center_y":.39}
+                    font_type: "quicksand"
+                    font_size: "24sp"
+                    halign: 'center'
+
+                MDLabel:
+                    id: prediction_accuracy
+                    text: ""
+                    theme_color: "Custom"
+                    pos_hint: {"center_x":.5, "center_y":.2}
+                    font_type: "quicksand"
+                    font_size: "24sp"
+                    halign: 'center'
+
+################################### END OF TBDETECTEDSCREEN #####################################
 
 <TBNotDetectedScreen>:
     name: "NotDetected"
+    id: TBNotDetected
+    md_bg_color: app.theme_cls.backgroundColor
+
     MDBoxLayout:
-        MDButton:
-            text: "Tuberculosis not detected"
-            pos_hint: {'center_x':0.5, 'center_y':0.5}
+        orientation: "vertical"
+        size_hint_y: .95
+
+        MDCard:
+            id: safe_state
+            style: "elevated"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            padding: "20dp"
+            size_hint: .9, .7
+            # Sets custom properties.
+            theme_shadow_color: "Custom"
+            shadow_color: "green"
+            theme_color: "Custom"
+            md_bg_color_disabled: "grey"
+            theme_shadow_offset: "Custom"
+            shadow_offset: (1, -2)
+            theme_shadow_softness: "Custom"
+            shadow_softness: 1
+            theme_elevation_level: "Custom"
+            elevation_level: 4
+
+            MDFloatLayout:
+                size_hint: 1, 1
+
+                MDButton:
+                    id: save_record
+                    pos_hint: {"center_x": .5, "center_y": .1}
+                    id: verification_button
+                    style: "outlined"
+                    theme_color: "Custom"
+
+                    on_press: root.save_patient_record()
+
+                    MDButtonIcon:
+                        theme_color: "Custom"
+                        icon: "plus"
+
+                    MDButtonText:
+                        theme_color: "Custom"
+                        text: "Save record"
+
+                MDIcon:
+                    id: verified_check
+                    icon: "check-outline"
+                    icon_color: "green"
+                    theme_font_size: "Custom"
+                    font_size: "100sp"
+                    radius: [self.height / 2, ]
+                    size_hint: None, None
+                    size: "84dp", "84dp"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+
+                MDLabel:
+                    id: successful_sign
+                    text: "Patient's X-ray free of tuberculosis"
+                    theme_color: "Custom"
+                    pos_hint: {"center_x":.5, "center_y":.39}
+                    font_type: "quicksand"
+                    font_size: "24sp"
+                    halign: 'center'
+
+                MDLabel:
+                    id: prediction_accuracy
+                    text: ""
+                    theme_color: "Custom"
+                    pos_hint: {"center_x":.5, "center_y":.2}
+                    font_type: "quicksand"
+                    font_size: "24sp"
+                    halign: 'center'
+
+######################################## END OF TBDETECTED SCREEN #######################################
+
+<CameraScreen>
+    id: Camera
+    name: "camera_screen"
+
+	MDBottomAppBar:
+
+        MDFabBottomAppBarButton:
+            icon: "camera-plus-outline"
+            pos_hint: {'center_x': 0.5}
+            theme_bg_color: "Custom"
+            md_bg_color: "#02ACB7"
+            theme_icon_color: "Custom"
+            icon_color: "#ffffff"
+            on_press:
+                root.manager.current = "Home"
+                root.manager.transition.direction = "down"
+
+<ProgressBarScreen>
+    name: "Progress"
+    id: progress_bar
+    MDFloatLayout:
+        md_bg_color: (0, 0, 0, 0)
+        CircularProgressBar:
+            size_hint: None, None
+            size: 200, 200
+            pos_hint: {"center_x": .5, "center_y": .5}
+            value: 99
+
+<CircularProgressBar>
+    canvas.before:
+        Color:
+            rgba: root.bar_color + [0.3]
+        Line:
+            width: root.bar_width
+            ellipse: (self.x, self.y, self.width, self.height, 0, 360)
+
+    canvas.after:
+        Color:
+            rgb: root.bar_color
+        Line:
+            width: root.bar_width
+            ellipse: (self.x, self.y, self.width, self.height, 0, root.set_value*3.6)
+
+    MDLabel:
+        id: progress_bar_counter
+        text: root.text
+        #font_name: "BPoppins"
+        font_size: "64sp"
+        pos_hint: {"center_x": .5, "center_y": .5}
+        halign: "center"
+        color: root.bar_color
+
+<MultipleImagesScreen>:
+    name: "Multiple"
+    md_bg_color: app.theme_cls.backgroundColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+        #adaptive_height: True
+
+        MDCard:
+            id: safe_state
+            style: "elevated"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            padding: "20dp"
+            size_hint: .95, .95
+            # Sets custom properties.
+            theme_shadow_color: "Custom"
+            shadow_color: "green"
+            theme_color: "Custom"
+            md_bg_color_disabled: "grey"
+            theme_shadow_offset: "Custom"
+            shadow_offset: (1, -2)
+            theme_shadow_softness: "Custom"
+            shadow_softness: 1
+            theme_elevation_level: "Custom"
+            elevation_level: 4
+
+            MDIconButton:
+                id: verified_check
+                icon: "arrow-left-circle-outline"
+                #icon_color: "green"
+                theme_font_size: "Custom"
+                font_size: "20sp"
+                pos_hint: {"center_x": .05, "center_y": .95}
+                on_press:
+                    root.manager.current = "Home"
+                    root.manager.transition.direction = "down"
+
+            MDScrollView:
+                #do_scroll_y: "true"
+                id: show_output
+
+                MDGridLayout:
+                    rows: 5
+                    cols: 2
+
+                    spacing: dp(10)
+                    padding: dp(10)
+
+                    MDCard:
+                        id: space_1
+                        style: "elevated"
+                        padding: 5
+                        spacing: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_1
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: .9, .8
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", "20dp", "20dp"
+
+
+                    MDCard:
+                        id: space_2
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_2
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: {"center_x":.9, "center_y": .9}
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_3
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_3
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: .9, .8
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_4
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_4
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: {"center_x":.9, "center_y": .9}
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_5
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_5
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: .9, .8
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_6
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_6
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: {"center_x":.9, "center_y": .9}
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_7
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_7
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: .9, .8
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_8
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_8
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: {"center_x":.9, "center_y": .9}
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_9
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_9
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: {"center_x":.9, "center_y": .9}
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+                    MDCard:
+                        id: space_10
+                        style: "elevated"
+                        padding: 5
+                        theme_shadow_color: "Custom"
+                        shadow_color: "grey"
+                        theme_color: "Custom"
+                        theme_shadow_offset: "Custom"
+                        shadow_offset: (1, -2)
+                        theme_shadow_softness: "Custom"
+                        shadow_softness: 1
+                        theme_elevation_level: "Custom"
+                        elevation_level: 3
+
+                        FitImage:
+                            id: display_image_10
+                            source: "x-ray-with-neon-colors.jpg"
+                            #size_hint: {"center_x":.9, "center_y": .9}
+                            pos_hint: {"top": 1}
+                            radius: "36dp", "36dp", 0, 0
+
+
+
