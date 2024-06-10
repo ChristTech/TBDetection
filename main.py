@@ -20,6 +20,7 @@ import cv2
 import pandas as pd
 import datetime
 from openpyxl import Workbook, load_workbook
+from kivy.clock import Clock
 
 Window.size = (360, 650)
 # Builder.load_file("TBDetection.kv")
@@ -56,6 +57,18 @@ class HomeScreen(Screen):
         load_multiple_image = self.manager.get_screen('Multiple')
         load_multiple_image.load_multiple_files()
 
+    def reload(self):
+        self.manager.current = "Progress"
+        #time.sleep(1)
+        self.manager.current = "Home"
+
+    def splash(self, *args):
+        ScreenManager.current = "Home"
+
+
+class ProgressScreen(Screen):
+    pass
+
 class UploadScreen(Screen):
 
     def change_image(self):
@@ -82,7 +95,7 @@ class UploadScreen(Screen):
                 self.manager.transition.direction = "left"
         except:
             self.manager.current = 'Upload'
-            
+
     def clear_fields(self):
         self.ids.patient_description.text = ""
         self.ids.patient_name.text = ""
@@ -307,8 +320,11 @@ class CircularProgressBar(AnchorLayout):
             self.set_value = self.counter
         else:
             Clock.unschedule(self.percent_counter)
-            time.sleep(2)
-            self.manager.current = "Home"
+            #ProgressBarScreen.reload_screen(self)
+
+
+class SplashScreen(Screen):
+    pass
 
 
 ScreenManager = ScreenManager()
@@ -318,17 +334,23 @@ ScreenManager.add_widget(TBDetectedScreen(name="Detected"))
 ScreenManager.add_widget(TBNotDetectedScreen(name="Unverified"))
 ScreenManager.add_widget(ProgressBarScreen(name="Progress"))
 ScreenManager.add_widget(MultipleImagesScreen(name="Multiple"))
+ScreenManager.add_widget(SplashScreen(name="Splash"))
 
 
 class TBAPP(MDApp):
+
+    global ScreenManager
 
     def build(self):
         self.theme_cls.theme_style_switch_animation = True
         self.theme_cls.theme_style_switch_animation_duration = 0.8
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Darkgray"
-        file = Builder.load_file('TBDetection.kv')
-        return file
+
+        #ScreenManager.add_widget(Builder.load_file('TBDetection.kv'))
+        ScreenManager.add_widget(Builder.load_file("splash.kv"))
+
+        return ScreenManager
 
     def switch_mode(self):
         self.theme_cls.primary_palette = (
@@ -337,6 +359,12 @@ class TBAPP(MDApp):
         self.theme_cls.theme_style = (
             "Dark" if self.theme_cls.theme_style == "Light" else "Light"
         )
+
+    def on_start(self):
+        Clock.schedule_once(self.change_screen, 5)
+
+    def change_screen(self, *args):
+        ScreenManager.current = "Home"
 
 
 if __name__ == '__main__':

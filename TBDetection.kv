@@ -2,8 +2,8 @@
 #: import Label kivy.uix.label.Label
 
 MDScreenManager:
-    ProgressBarScreen:
     HomeScreen:
+    ProgressBarScreen:
     UploadScreen:
     MultipleImagesScreen:
     TBDetectedScreen:
@@ -164,8 +164,7 @@ MDScreenManager:
                 theme_icon_color: "Custom"
                 icon_color: "#ffffff"
                 on_press:
-                    root.manager.current = "Progress"
-                    root.manager.transition.direction = "up"
+                    root.reload()
 
 ################################# END OF HOMESCREEN #############################
 
@@ -486,7 +485,8 @@ MDScreenManager:
             size_hint: None, None
             size: 200, 200
             pos_hint: {"center_x": .5, "center_y": .5}
-            value: 99
+            value: 100
+            #on_exit: self.manager.current = "Home"
 
 <CircularProgressBar>
     canvas.before:
@@ -771,6 +771,8 @@ MDScreenManager:
                             #size_hint: {"center_x":.9, "center_y": .9}
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
+
+
 
 
 
