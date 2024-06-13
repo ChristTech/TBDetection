@@ -1,10 +1,8 @@
 import os
 from kivy import Config
-
-Config.set('graphics', 'multisamples', '0')
+#Config.set('graphics', 'multisamples', '0')
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
 
-from kivy.uix.filechooser import FileChooser
 import time
 from kivy.properties import ListProperty, NumericProperty, StringProperty, Clock
 from kivy.uix.anchorlayout import AnchorLayout
@@ -17,13 +15,19 @@ from plyer import filechooser
 import tensorflow as tf
 import numpy as np
 import cv2
-import pandas as pd
-import datetime
 from openpyxl import Workbook, load_workbook
 from kivy.clock import Clock
+from kivymd.uix.dialog import (
+    MDDialog,
+    MDDialogIcon,
+    MDDialogHeadlineText,
+    MDDialogSupportingText,
+)
 
-Window.size = (360, 650)
-# Builder.load_file("TBDetection.kv")
+if os.name == "posix":
+    pass
+else:
+    Window.size = (400, 650)
 
 
 prediction = ""
@@ -32,8 +36,7 @@ prediction = ""
 picture = ""
 
 # loads the pre-trained model
-loaded_model = tf.keras.models.load_model(
-    r'C:\Users\victor.CHRISTTECH\Downloads\ProjectFolder\ImageClassification-main\models\my_tb_model.h5')
+loaded_model = tf.keras.models.load_model("my_tb_model.h5")
 
 
 class HomeScreen(Screen):
@@ -59,7 +62,6 @@ class HomeScreen(Screen):
 
     def reload(self):
         self.manager.current = "Progress"
-        #time.sleep(1)
         self.manager.current = "Home"
 
     def splash(self, *args):
@@ -68,6 +70,7 @@ class HomeScreen(Screen):
 
 class ProgressScreen(Screen):
     pass
+
 
 class UploadScreen(Screen):
 
@@ -84,15 +87,24 @@ class UploadScreen(Screen):
 
             prediction = loaded_model.predict(input_img)
 
-            if prediction > 0.5:
+            if prediction > 0.75:
                 self.manager.current = "Detected"
-                time.sleep(1.5)
+                #time.sleep(1.5)
                 self.manager.transition.direction = "left"
+
+            elif prediction > 0.4:
+                self.manager.current = "Detected"
+                self.manager.direction = "left"
+                self.manager.get_screen("Detected").ids.unsafe_state.shadow_color = "yellow"
+                self.manager.get_screen("Detected").ids.verified_check.icon_color = "#959500"
+                self.manager.get_screen("Detected").ids.successful_sign.text = ("Patient might have TB\n "
+                                                                                "further test should be carried out")
 
             else:
                 self.manager.current = "NotDetected"
                 time.sleep(1.5)
                 self.manager.transition.direction = "left"
+
         except:
             self.manager.current = 'Upload'
 
@@ -100,6 +112,7 @@ class UploadScreen(Screen):
         self.ids.patient_description.text = ""
         self.ids.patient_name.text = ""
         self.ids.display_image.source = ""
+
 
 class TBDetectedScreen(Screen):
 
@@ -114,14 +127,10 @@ class TBDetectedScreen(Screen):
         print(prediction)
 
         try:
-            if prediction > 0.5:
-                case = f"Patient has {round(prediction[0][0] * 100, 2)}% chance of TB"
-
-            else:
-                case = f"patient has {round(prediction[0][0] * 100, 2)}% chance of TB"
+            case = f"Patient has {round(prediction[0][0] * 100, 2)}% chance of TB"
 
             """this section adds the patient information to an excel sheet"""
-            excel_file_name = "diagnosesses.xlsx"
+            excel_file_name = "TB Diagnosis.xlsx"
             excel_path = os.getcwd() + "\\" + excel_file_name
 
             if not os.path.exists(excel_path):
@@ -339,18 +348,16 @@ ScreenManager.add_widget(SplashScreen(name="Splash"))
 
 class TBAPP(MDApp):
 
-    global ScreenManager
-
     def build(self):
+        self.title = "Tuberculosis Detector"
+        self.icon = "x-ray-with-neon-colors.jpg"
         self.theme_cls.theme_style_switch_animation = True
         self.theme_cls.theme_style_switch_animation_duration = 0.8
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Darkgray"
+        file = Builder.load_file("TBDetection.kv")
 
-        #ScreenManager.add_widget(Builder.load_file('TBDetection.kv'))
-        ScreenManager.add_widget(Builder.load_file("splash.kv"))
-
-        return ScreenManager
+        return file
 
     def switch_mode(self):
         self.theme_cls.primary_palette = (
@@ -360,11 +367,47 @@ class TBAPP(MDApp):
             "Dark" if self.theme_cls.theme_style == "Light" else "Light"
         )
 
-    def on_start(self):
-        Clock.schedule_once(self.change_screen, 5)
+    def show_alert_dialog(self, *args):
+        MDDialog(
+            # ----------------------------Icon-----------------------------
+            MDDialogIcon(
+                icon="information",
+            ),
+            # -----------------------Headline text-------------------------
+            MDDialogHeadlineText(
+                text="20/7cs/00231",
+            ),
+            # -----------------------Supporting text-----------------------
+            MDDialogSupportingText(
+                text="Application developed by Adebisi Victor Omoikhefe "
+                     "in partial fulfillment of the undergraduate program\n"
+                     "B.sc computer science.\n\n"
+                    "Supervisor: Dr. RM Isiaka.",
+            ),
 
-    def change_screen(self, *args):
-        ScreenManager.current = "Home"
+            # -------------------------------------------------------------
+        ).open()
+
+    def show_alert_dialog2(self, *args):
+        MDDialog(
+            # ----------------------------Icon-----------------------------
+            MDDialogIcon(
+                icon="alert",
+            ),
+            # -----------------------Headline text-------------------------
+            MDDialogHeadlineText(
+                text="critical",
+            ),
+            # -----------------------Supporting text-----------------------
+            MDDialogSupportingText(
+                text="Please cross check results from this application\n "
+                     "As this is an artificial intelligence model with 98% accuracy,\n"
+                     "some of it's results might be false.\n\n"
+                    "",
+            ),
+
+            # -------------------------------------------------------------
+        ).open()
 
 
 if __name__ == '__main__':

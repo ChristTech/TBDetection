@@ -1,5 +1,5 @@
 #:import MDActionBottomAppBarButton kivymd.uix.appbar.MDActionBottomAppBarButton
-#: import Label kivy.uix.label.Label
+#:import Label kivy.uix.label.Label
 
 MDScreenManager:
     HomeScreen:
@@ -8,8 +8,6 @@ MDScreenManager:
     MultipleImagesScreen:
     TBDetectedScreen:
     TBNotDetectedScreen:
-
-
 
 <HomeScreen>:
     md_bg_color: app.theme_cls.backgroundColor
@@ -22,15 +20,11 @@ MDScreenManager:
         MDTopAppBar:
             type: "small"
 
-            MDTopAppBarTitle:
-                text: "TB Indicator"
-                pos_hint: {"center_x": .5}
-
             MDIconButton:
                 id: switch_button_icon
                 icon: 'toggle-switch-off-outline'
                 pos_hint: {"center_y": .5}
-                size: (40, 40)
+                size: (60, 40)
                 on_release:
                     app.switch_mode()
                     root.change_toggle_button()
@@ -153,8 +147,17 @@ MDScreenManager:
             # buttons on the bottom of the screen
             action_items:
                 [
-                MDActionBottomAppBarButton(icon="image-area", pos_hint={'center_x': 0.1}, icon_color="#e6e6e6"),
-                MDActionBottomAppBarButton(icon="alert", pos_hint={'center_x': 0.9}),
+                MDActionBottomAppBarButton(
+                on_release = app.show_alert_dialog,
+                icon="information-outline",
+                pos_hint={'center_x': 0.1},
+                icon_color="#e6e6e6"),
+
+                MDActionBottomAppBarButton(
+                icon="alert-outline",
+                pos_hint={'center_x': 0.9},
+                on_release = app.show_alert_dialog2,
+                icon_color="#e6e6e6"),
                 ]
             MDFabBottomAppBarButton:
                 icon: "reload"
@@ -520,15 +523,15 @@ MDScreenManager:
         orientation: "vertical"
         #adaptive_height: True
 
+
         MDCard:
-            id: safe_state
             style: "elevated"
             pos_hint: {"center_x": .5, "center_y": .5}
             padding: "20dp"
             size_hint: .95, .95
             # Sets custom properties.
             theme_shadow_color: "Custom"
-            shadow_color: "green"
+            # shadow_color: "green"
             theme_color: "Custom"
             md_bg_color_disabled: "grey"
             theme_shadow_offset: "Custom"
@@ -536,7 +539,7 @@ MDScreenManager:
             theme_shadow_softness: "Custom"
             shadow_softness: 1
             theme_elevation_level: "Custom"
-            elevation_level: 4
+            elevation_level: 1
 
             MDIconButton:
                 id: verified_check
@@ -577,7 +580,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_1
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: .9, .8
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", "20dp", "20dp"
@@ -599,7 +602,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_2
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: {"center_x":.9, "center_y": .9}
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -620,7 +623,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_3
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: .9, .8
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -641,7 +644,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_4
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: {"center_x":.9, "center_y": .9}
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -662,7 +665,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_5
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: .9, .8
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -683,7 +686,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_6
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: {"center_x":.9, "center_y": .9}
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -704,7 +707,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_7
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: .9, .8
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -725,7 +728,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_8
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: {"center_x":.9, "center_y": .9}
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -746,7 +749,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_9
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: {"center_x":.9, "center_y": .9}
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
@@ -767,7 +770,7 @@ MDScreenManager:
 
                         FitImage:
                             id: display_image_10
-                            source: "x-ray-with-neon-colors.jpg"
+                            source: ""
                             #size_hint: {"center_x":.9, "center_y": .9}
                             pos_hint: {"top": 1}
                             radius: "36dp", "36dp", 0, 0
